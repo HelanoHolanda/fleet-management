@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { CacheModule } from '@nestjs/cache-manager';
 import { createKeyv } from '@keyv/redis';
 import { AuthModule } from './auth/auth.module';
+import { ModelsModule } from './models/models.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { AuthModule } from './auth/auth.module';
     }),
 
     AuthModule,
+    ModelsModule,
   ],
 })
 export class AppModule {}
