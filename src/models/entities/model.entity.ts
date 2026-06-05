@@ -1,7 +1,9 @@
+import { Vehicle } from 'src/vehicles/entities/vehicle.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -22,4 +24,7 @@ export class Model {
 
   @Column({ name: 'created_by', type: 'uuid', nullable: true })
   createdBy!: string | null;
+
+  @OneToMany(() => Vehicle, (vehicle) => vehicle.model)
+  vehicles!: Vehicle[];
 }

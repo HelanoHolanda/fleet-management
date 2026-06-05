@@ -50,4 +50,12 @@ export class ModelsRepository {
       },
     });
   }
+
+  async findById(id: string): Promise<Model | null> {
+    return this.repository.findOne({
+      where: {
+        id,
+      },
+    });
+  }
 }
