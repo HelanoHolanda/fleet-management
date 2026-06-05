@@ -4,6 +4,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CacheModule } from '@nestjs/cache-manager';
 import { createKeyv } from '@keyv/redis';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -15,7 +16,7 @@ import { createKeyv } from '@keyv/redis';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
-        type: 'mssql',
+        type: 'postgres',
         host: config.get('DB_HOST'),
         port: parseInt(config.get('DB_PORT') ?? '1433'),
         username: config.get('DB_USER'),
@@ -24,10 +25,6 @@ import { createKeyv } from '@keyv/redis';
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         migrations: [__dirname + '/migrations/*{.ts,.js}'],
         synchronize: false,
-        options: {
-          encrypt: false,
-          trustServerCertificate: true,
-        },
       }),
     }),
 
@@ -44,6 +41,8 @@ import { createKeyv } from '@keyv/redis';
         ttl: +config.get('CACHE_TTL') * 1000,
       }),
     }),
+
+    AuthModule,
   ],
 })
 export class AppModule {}
