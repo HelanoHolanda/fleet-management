@@ -6,6 +6,7 @@ import { CacheModule } from '@nestjs/cache-manager';
 import { createKeyv } from '@keyv/redis';
 import { AuthModule } from './auth/auth.module';
 import { ModelsModule } from './models/models.module';
+import { VehiclesModule } from './vehicles/vehicles.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { ModelsModule } from './models/models.module';
 
     AuthModule,
     ModelsModule,
+    VehiclesModule,
   ],
 })
 export class AppModule {}

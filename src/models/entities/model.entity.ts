@@ -1,4 +1,4 @@
-import { Vehicle } from 'src/vehicles/entities/vehicle.entity';
+import { Vehicle } from '../../vehicles/entities/vehicle.entity';
 import {
   Column,
   CreateDateColumn,
@@ -26,5 +26,5 @@ export class Model {
   createdBy!: string | null;
 
   @OneToMany(() => Vehicle, (vehicle) => vehicle.model)
-  vehicles!: Vehicle[];
+  vehicles?: Vehicle[];
 }

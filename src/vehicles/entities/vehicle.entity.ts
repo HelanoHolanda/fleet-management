@@ -23,10 +23,10 @@ export class Vehicle {
   @Column({ length: 11, unique: true })
   renavam!: string;
 
-  @Column()
+  @Column({ type: 'integer' })
   year!: number;
 
-  @Column({ name: 'model_id' })
+  @Column({ name: 'model_id', type: 'uuid' })
   modelId!: string;
 
   @ManyToOne(() => Model)
@@ -39,6 +39,6 @@ export class Vehicle {
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt!: Date;
 
-  @Column({ name: 'created_by', nullable: true })
-  createdBy!: string;
+  @Column({ name: 'created_by', type: 'uuid', nullable: true })
+  createdBy!: string | null;
 }
