@@ -3,7 +3,6 @@ import {
   ConflictException,
   NotFoundException,
 } from '@nestjs/common';
-import { QueryFailedError } from 'typeorm';
 import { Model } from '../entities/model.entity';
 import { ModelsRepository } from '../repositories/models.repository';
 import { DeleteModelUseCase } from './delete-model.use-case';
@@ -11,7 +10,7 @@ import { DeleteModelUseCase } from './delete-model.use-case';
 describe('DeleteModelUseCase', () => {
   let useCase: DeleteModelUseCase;
   let modelsRepository: jest.Mocked<
-    Pick<ModelsRepository, 'findById' | 'delete'>
+    Pick<ModelsRepository, 'findById' | 'hasVehicles' | 'delete'>
   >;
 
   const modelId = '96791b2d-3083-4055-ba55-8d9b8ba6aa6b';
@@ -27,6 +26,7 @@ describe('DeleteModelUseCase', () => {
   beforeEach(() => {
     modelsRepository = {
       findById: jest.fn(),
+      hasVehicles: jest.fn(),
       delete: jest.fn(),
     };
 
@@ -37,6 +37,7 @@ describe('DeleteModelUseCase', () => {
 
   it('should delete a model when it exists', async () => {
     modelsRepository.findById.mockResolvedValue(model);
+    modelsRepository.hasVehicles.mockResolvedValue(false);
     modelsRepository.delete.mockResolvedValue(undefined);
 
     await expect(useCase.execute(modelId)).resolves.toBeUndefined();
@@ -62,16 +63,12 @@ describe('DeleteModelUseCase', () => {
   });
 
   it('should throw ConflictException when model has linked vehicles', async () => {
-    const error = Object.assign(
-      new QueryFailedError('', [], { number: 547 } as unknown as Error),
-      { number: 547 },
-    );
-
     modelsRepository.findById.mockResolvedValue(model);
-    modelsRepository.delete.mockRejectedValue(error);
+    modelsRepository.hasVehicles.mockResolvedValue(true);
 
     await expect(useCase.execute(modelId)).rejects.toBeInstanceOf(
       ConflictException,
     );
+    expect(modelsRepository.delete).not.toHaveBeenCalled();
   });
 });

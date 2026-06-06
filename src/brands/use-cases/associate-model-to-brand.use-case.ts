@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Model } from '../../models/entities/model.entity';
 import { ModelsRepository } from '../../models/repositories/models.repository';

@@ -10,8 +10,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
-import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { ResponseDto } from '../../common/dto/response.dto';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { User } from '../../users/entities/user.entity';
 import { CreateBrandDto } from '../dto/create-brand.dto';
 import { UpdateBrandDto } from '../dto/update-brand.dto';
@@ -45,13 +45,16 @@ export class BrandsController {
   }
 
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() dto: UpdateBrandDto) {
+  async update(
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+    @Body() dto: UpdateBrandDto,
+  ) {
     const brand = await this.updateBrandUseCase.execute(id, dto);
     return ResponseDto.success(brand, 'Marca atualizada com sucesso.');
   }
 
   @Delete(':id')
-  async delete(@Param('id') id: string) {
+  async delete(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
     await this.deleteBrandUseCase.execute(id);
     return ResponseDto.success(null, 'Marca removida com sucesso.');
   }
@@ -65,6 +68,6 @@ export class BrandsController {
       brandId,
       modelId,
     );
-    return ResponseDto.success(model, 'Modelo associado à marca com sucesso.');
+    return ResponseDto.success(model, 'Modelo associado a marca com sucesso.');
   }
 }
