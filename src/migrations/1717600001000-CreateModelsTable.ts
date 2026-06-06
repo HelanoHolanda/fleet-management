@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner, Table, TableIndex } from 'typeorm';
+import { MigrationInterface, QueryRunner, Table } from 'typeorm';
 
 export class CreateModelsTable1717600001000 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
@@ -8,48 +8,39 @@ export class CreateModelsTable1717600001000 implements MigrationInterface {
         columns: [
           {
             name: 'id',
-            type: 'uuid',
+            type: 'uniqueidentifier',
             isPrimary: true,
             generationStrategy: 'uuid',
-            default: 'gen_random_uuid()',
+            default: 'NEWID()',
           },
           {
             name: 'name',
-            type: 'varchar',
+            type: 'nvarchar',
             length: '100',
             isNullable: false,
+            isUnique: true,
           },
           {
             name: 'created_at',
-            type: 'timestamp with time zone',
-            default: 'CURRENT_TIMESTAMP',
+            type: 'datetime2',
+            default: 'GETDATE()',
           },
           {
             name: 'updated_at',
-            type: 'timestamp with time zone',
-            default: 'CURRENT_TIMESTAMP',
+            type: 'datetime2',
+            default: 'GETDATE()',
           },
           {
             name: 'created_by',
-            type: 'uuid',
+            type: 'uniqueidentifier',
             isNullable: true,
           },
         ],
       }),
     );
-
-    await queryRunner.createIndex(
-      'models',
-      new TableIndex({
-        name: 'IDX_MODELS_NAME',
-        columnNames: ['name'],
-        isUnique: true,
-      }),
-    );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.dropIndex('models', 'IDX_MODELS_NAME');
     await queryRunner.dropTable('models');
   }
 }

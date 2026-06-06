@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { CacheModule } from '@nestjs/cache-manager';
 import { createKeyv } from '@keyv/redis';
 import { AuthModule } from './auth/auth.module';
+import { BrandsModule } from './brands/brands.module';
 import { ModelsModule } from './models/models.module';
 import { VehiclesModule } from './vehicles/vehicles.module';
 
@@ -18,7 +19,7 @@ import { VehiclesModule } from './vehicles/vehicles.module';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
-        type: 'postgres',
+        type: 'mssql',
         host: config.get('DB_HOST'),
         port: parseInt(config.get('DB_PORT') ?? '1433'),
         username: config.get('DB_USER'),
@@ -27,6 +28,10 @@ import { VehiclesModule } from './vehicles/vehicles.module';
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         migrations: [__dirname + '/migrations/*{.ts,.js}'],
         synchronize: false,
+        options: {
+          encrypt: false,
+          trustServerCertificate: true,
+        },
       }),
     }),
 
@@ -45,6 +50,7 @@ import { VehiclesModule } from './vehicles/vehicles.module';
     }),
 
     AuthModule,
+    BrandsModule,
     ModelsModule,
     VehiclesModule,
   ],

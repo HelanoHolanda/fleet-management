@@ -1,4 +1,8 @@
-import { ConflictException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  NotFoundException,
+} from '@nestjs/common';
 import { QueryFailedError } from 'typeorm';
 import { Model } from '../entities/model.entity';
 import { ModelsRepository } from '../repositories/models.repository';
@@ -10,8 +14,10 @@ describe('DeleteModelUseCase', () => {
     Pick<ModelsRepository, 'findById' | 'delete'>
   >;
 
+  const modelId = '96791b2d-3083-4055-ba55-8d9b8ba6aa6b';
+
   const model: Model = {
-    id: 'model-id',
+    id: modelId,
     name: 'Corolla',
     createdAt: new Date('2026-06-05T00:00:00.000Z'),
     updatedAt: new Date('2026-06-05T00:00:00.000Z'),
@@ -33,30 +39,38 @@ describe('DeleteModelUseCase', () => {
     modelsRepository.findById.mockResolvedValue(model);
     modelsRepository.delete.mockResolvedValue(undefined);
 
-    await expect(useCase.execute('model-id')).resolves.toBeUndefined();
-    expect(modelsRepository.findById).toHaveBeenCalledWith('model-id');
-    expect(modelsRepository.delete).toHaveBeenCalledWith('model-id');
+    await expect(useCase.execute(modelId)).resolves.toBeUndefined();
+    expect(modelsRepository.findById).toHaveBeenCalledWith(modelId);
+    expect(modelsRepository.delete).toHaveBeenCalledWith(modelId);
   });
 
   it('should throw NotFoundException when model does not exist', async () => {
     modelsRepository.findById.mockResolvedValue(null);
 
-    await expect(useCase.execute('model-id')).rejects.toBeInstanceOf(
+    await expect(useCase.execute(modelId)).rejects.toBeInstanceOf(
       NotFoundException,
     );
     expect(modelsRepository.delete).not.toHaveBeenCalled();
   });
 
+  it('should throw BadRequestException when id is not a valid uuid', async () => {
+    await expect(useCase.execute('id-invalido')).rejects.toBeInstanceOf(
+      BadRequestException,
+    );
+    expect(modelsRepository.findById).not.toHaveBeenCalled();
+    expect(modelsRepository.delete).not.toHaveBeenCalled();
+  });
+
   it('should throw ConflictException when model has linked vehicles', async () => {
     const error = Object.assign(
-      new QueryFailedError('', [], { code: '23503' } as unknown as Error),
-      { code: '23503' },
+      new QueryFailedError('', [], { number: 547 } as unknown as Error),
+      { number: 547 },
     );
 
     modelsRepository.findById.mockResolvedValue(model);
     modelsRepository.delete.mockRejectedValue(error);
 
-    await expect(useCase.execute('model-id')).rejects.toBeInstanceOf(
+    await expect(useCase.execute(modelId)).rejects.toBeInstanceOf(
       ConflictException,
     );
   });

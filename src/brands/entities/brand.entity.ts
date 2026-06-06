@@ -2,26 +2,19 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Model } from '../../models/entities/model.entity';
 
-@Entity('users')
-export class User {
+@Entity('brands')
+export class Brand {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column({ length: 50, unique: true })
-  nickname!: string;
-
-  @Column({ length: 100 })
+  @Column({ length: 100, unique: true })
   name!: string;
-
-  @Column({ unique: true })
-  email!: string;
-
-  @Column()
-  password!: string;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt!: Date;
@@ -31,4 +24,7 @@ export class User {
 
   @Column({ name: 'created_by', type: 'uniqueidentifier', nullable: true })
   createdBy!: string | null;
+
+  @OneToMany(() => Model, (model) => model.brand)
+  models?: Model[];
 }

@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseUUIDPipe,
   Patch,
   Post,
   UseGuards,
@@ -54,7 +55,7 @@ export class VehiclesController {
 
   @Patch(':id')
   async update(
-    @Param('id') id: string,
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
     @Body() dto: UpdateVehicleDto,
   ): Promise<VehicleResponseDto> {
     const vehicle = await this.updateVehicleUseCase.execute(id, dto);
@@ -71,7 +72,7 @@ export class VehiclesController {
   }
 
   @Delete(':id')
-  async delete(@Param('id') id: string) {
+  async delete(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
     return this.deleteVehicleUseCase.execute(id);
   }
 }

@@ -58,4 +58,26 @@ export class ModelsRepository {
       },
     });
   }
+
+  async assignBrand(id: string, brandId: string): Promise<Model> {
+    await this.repository.update(id, { brandId });
+    const model = await this.repository.findOne({
+      where: { id },
+      relations: ['brand'],
+    });
+
+    if (!model) {
+      throw new Error('Model not found');
+    }
+
+    return model;
+  }
+
+  async hasVehicles(modelId: string): Promise<boolean> {
+    const count = await this.repository.count({
+      where: { id: modelId },
+      relations: ['vehicles'],
+    });
+    return count > 0;
+  }
 }

@@ -1,8 +1,11 @@
 import { Vehicle } from '../../vehicles/entities/vehicle.entity';
+import { Brand } from '../../brands/entities/brand.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -22,8 +25,15 @@ export class Model {
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt!: Date;
 
-  @Column({ name: 'created_by', type: 'uuid', nullable: true })
+  @Column({ name: 'created_by', type: 'uniqueidentifier', nullable: true })
   createdBy!: string | null;
+
+  @Column({ name: 'brand_id', type: 'uniqueidentifier', nullable: true })
+  brandId?: string | null;
+
+  @ManyToOne(() => Brand, (brand) => brand.models, { nullable: true })
+  @JoinColumn({ name: 'brand_id' })
+  brand?: Brand | null;
 
   @OneToMany(() => Vehicle, (vehicle) => vehicle.model)
   vehicles?: Vehicle[];
