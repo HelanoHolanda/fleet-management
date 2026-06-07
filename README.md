@@ -1,98 +1,189 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+cat > README.md << 'EOF'
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+# 🚗 Fleet Management API
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+API REST para gestão de frota de veículos desenvolvida com NestJS.
 
-## Description
+## 🛠 Tecnologias
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- **NestJS** — framework principal
+- **TypeORM** — ORM para SQL Server
+- **SQL Server** — banco de dados relacional
+- **Redis** — cache de consultas
+- **RabbitMQ** — mensageria de eventos
+- **MongoDB** — auditoria de interações
+- **JWT** — autenticação
+- **Jest** — testes automatizados
+- **Docker** — containerização
 
-## Project setup
+## 📋 Pré-requisitos
+
+- Node.js 18+
+- Docker e Docker Compose
+
+## 🚀 Como executar
+
+### 1. Clone o repositório
 
 ```bash
-$ npm install
+git clone https://github.com/HelanoHolanda/fleet-management.git
+cd fleet-management
 ```
 
-## Compile and run the project
+### 2. Configure o ambiente
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+cp .env.example .env
 ```
 
-## Run tests
+> Edite o `.env` com suas configurações se necessário.
+
+### 3. Instale as dependências
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+npm install
 ```
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+### 4. Suba os containers
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+docker-compose up -d sqlserver redis rabbitmq mongodb
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### 5. Aguarde o SQL Server iniciar (30 segundos) e crie o banco
 
-## Resources
+```bash
+docker exec -it fleet-sqlserver //opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "SuaSenha@123" -No -Q "CREATE DATABASE fleet_db"
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+### 6. Execute as migrations
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+```bash
+npm run migration:run
+```
 
-## Support
+### 7. Execute o seed
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+```bash
+npm run seed:aivacol
+```
 
-## Stay in touch
+### 8. Inicie a aplicação
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+```bash
+npm run start:dev
+```
 
-## License
+## 🔐 Autenticação
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+Todas as rotas são protegidas por JWT. Para obter o token:
+
+POST /auth/login
+{
+"nickname": "aivacol",
+"password": "123456"
+}
+
+Use o token retornado no header:
+
+## 📡 Rotas
+
+### Auth
+
+| Método | Rota        | Descrição |
+| ------ | ----------- | --------- |
+| POST   | /auth/login | Login     |
+
+### Vehicles
+
+| Método | Rota          | Descrição         |
+| ------ | ------------- | ----------------- |
+| POST   | /vehicles     | Criar veículo     |
+| GET    | /vehicles     | Listar veículos   |
+| PATCH  | /vehicles/:id | Atualizar veículo |
+| DELETE | /vehicles/:id | Remover veículo   |
+
+### Models
+
+| Método | Rota        | Descrição        |
+| ------ | ----------- | ---------------- |
+| POST   | /models     | Criar modelo     |
+| GET    | /models     | Listar modelos   |
+| PATCH  | /models/:id | Atualizar modelo |
+| DELETE | /models/:id | Remover modelo   |
+
+### Brands (bônus)
+
+| Método | Rota                             | Descrição               |
+| ------ | -------------------------------- | ----------------------- |
+| POST   | /brands                          | Criar marca             |
+| GET    | /brands                          | Listar marcas           |
+| PATCH  | /brands/:id                      | Atualizar marca         |
+| DELETE | /brands/:id                      | Remover marca           |
+| PATCH  | /brands/:brandId/models/:modelId | Associar modelo à marca |
+
+## 🏗 Arquitetura
+
+src/
+├── auth/
+├── common/
+│ ├── decorators/
+│ ├── filters/
+│ ├── guards/
+│ └── pipes/
+├── brands/
+├── models/
+├── users/
+├── vehicles/
+├── messaging/
+└── audit/
+
+Cada módulo segue a arquitetura em camadas:
+
+- **Controller** — recebe requisições HTTP
+- **Use Cases** — regras de negócio isoladas
+- **Repository** — acesso ao banco de dados
+- **Entity** — representação da tabela
+- **DTO** — validação e tipagem
+
+## ⚡ Cache
+
+Consultas de veículos são cacheadas no Redis com TTL configurável via `CACHE_TTL` no `.env`. O cache é invalidado automaticamente ao criar, atualizar ou remover um veículo.
+
+## 📨 Mensageria
+
+Eventos de veículos são publicados no RabbitMQ:
+
+- `vehicle.created`
+- `vehicle.updated`
+- `vehicle.deleted`
+
+## 📝 Auditoria
+
+Todas as interações com veículos são registradas no MongoDB na coleção `audit_logs`.
+
+## 🧪 Testes
+
+```bash
+# Testes unitários
+npm run test
+
+# Cobertura
+npm run test:cov
+```
+
+## 🔧 Decisões Técnicas
+
+- **UUID** nos IDs — segurança contra enumeração de recursos
+- **Cache Redis** — redução de carga no banco em consultas frequentes
+- **Use Cases isolados** — facilita testes e manutenção
+- **RabbitMQ** — desacoplamento entre módulos
+- **MongoDB** — flexibilidade para logs de auditoria
+
+## 🌱 Melhorias Futuras
+
+- Refresh Token
+- Roles e permissões
+- Rate limiting
+- Documentação Swagger
+  EOF

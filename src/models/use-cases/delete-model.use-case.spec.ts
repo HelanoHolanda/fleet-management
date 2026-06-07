@@ -1,0 +1,64 @@
+import { ConflictException, NotFoundException } from '@nestjs/common';
+import { Model } from '../entities/model.entity';
+import { ModelsRepository } from '../repositories/models.repository';
+import { DeleteModelUseCase } from './delete-model.use-case';
+
+describe('DeleteModelUseCase', () => {
+  let useCase: DeleteModelUseCase;
+  let modelsRepository: jest.Mocked<
+    Pick<ModelsRepository, 'findById' | 'hasVehicles' | 'delete'>
+  >;
+
+  const modelId = '96791b2d-3083-4055-ba55-8d9b8ba6aa6b';
+
+  const model: Model = {
+    id: modelId,
+    name: 'Corolla',
+    createdAt: new Date('2026-06-05T00:00:00.000Z'),
+    updatedAt: new Date('2026-06-05T00:00:00.000Z'),
+    createdBy: 'user-id',
+  };
+
+  beforeEach(() => {
+    modelsRepository = {
+      findById: jest.fn(),
+      hasVehicles: jest.fn(),
+      delete: jest.fn(),
+    };
+
+    useCase = new DeleteModelUseCase(
+      modelsRepository as unknown as ModelsRepository,
+    );
+  });
+
+  it('should delete a model when it exists', async () => {
+    modelsRepository.findById.mockResolvedValue(model);
+    modelsRepository.hasVehicles.mockResolvedValue(false);
+    modelsRepository.delete.mockResolvedValue(undefined);
+
+    await expect(useCase.execute(modelId)).resolves.toEqual({
+      message: 'Modelo removido com sucesso.',
+    });
+    expect(modelsRepository.findById).toHaveBeenCalledWith(modelId);
+    expect(modelsRepository.delete).toHaveBeenCalledWith(modelId);
+  });
+
+  it('should throw NotFoundException when model does not exist', async () => {
+    modelsRepository.findById.mockResolvedValue(null);
+
+    await expect(useCase.execute(modelId)).rejects.toBeInstanceOf(
+      NotFoundException,
+    );
+    expect(modelsRepository.delete).not.toHaveBeenCalled();
+  });
+
+  it('should throw ConflictException when model has linked vehicles', async () => {
+    modelsRepository.findById.mockResolvedValue(model);
+    modelsRepository.hasVehicles.mockResolvedValue(true);
+
+    await expect(useCase.execute(modelId)).rejects.toBeInstanceOf(
+      ConflictException,
+    );
+    expect(modelsRepository.delete).not.toHaveBeenCalled();
+  });
+});

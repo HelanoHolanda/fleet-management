@@ -4,6 +4,12 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CacheModule } from '@nestjs/cache-manager';
 import { createKeyv } from '@keyv/redis';
+import { AuthModule } from './auth/auth.module';
+import { BrandsModule } from './brands/brands.module';
+import { ModelsModule } from './models/models.module';
+import { VehiclesModule } from './vehicles/vehicles.module';
+import { MessagingModule } from './messaging/messaging.module';
+import { AuditModule } from './audit/audit.module';
 
 @Module({
   imports: [
@@ -44,6 +50,13 @@ import { createKeyv } from '@keyv/redis';
         ttl: +config.get('CACHE_TTL') * 1000,
       }),
     }),
+
+    AuthModule,
+    BrandsModule,
+    ModelsModule,
+    VehiclesModule,
+    MessagingModule,
+    AuditModule,
   ],
 })
 export class AppModule {}

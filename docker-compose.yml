@@ -1,0 +1,86 @@
+services:
+  app:
+    build:
+      context: .
+      target: development
+    container_name: fleet-app
+    command: npm run start:dev
+    ports:
+      - '${PORT:-3000}:3000'
+    env_file:
+      - .env
+    environment:
+      DB_HOST: sqlserver
+      DB_PORT: 1433
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    volumes:
+      - .:/app
+      - /app/node_modules
+    depends_on:
+      sqlserver:
+        condition: service_started
+      redis:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: fleet-sqlserver
+    ports:
+      - '${DB_PORT:-1433}:1433'
+    environment:
+      ACCEPT_EULA: 'Y'
+      MSSQL_SA_PASSWORD: ${DB_PASS:-SuaSenha@123}
+      MSSQL_PID: Developer
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+    healthcheck:
+      test: ['CMD-SHELL', 'bash -c "</dev/tcp/localhost/1433"']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  redis:
+    image: redis:7-alpine
+    container_name: fleet-redis
+    ports:
+      - '${REDIS_PORT:-6379}:6379'
+    volumes:
+      - redis-data:/data
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: fleet-rabbitmq
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-guest}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS:-guest}
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: ['CMD', 'rabbitmq-diagnostics', 'check_port_connectivity']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  mongodb:
+    image: mongo:7
+    container_name: fleet-mongodb
+    ports:
+      - '27017:27017'
+    environment:
+      MONGO_INITDB_DATABASE: fleet_audit
+    volumes:
+      - mongodb-data:/data/db
+
+volumes:
+  sqlserver-data:
+  redis-data:
+  rabbitmq-data:
+  mongodb-data:
