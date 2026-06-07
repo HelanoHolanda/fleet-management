@@ -74,6 +74,12 @@ npm run seed:aivacol
 npm run start:dev
 ```
 
+## 📚 Documentação
+
+A documentação completa da API está disponível via Swagger:
+
+> A porta pode variar conforme o valor de `PORT` no seu `.env`.
+
 ## 📮 Postman
 
 Importe o arquivo `fleet-management.postman_collection.json` no Postman para ter todas as rotas prontas.
