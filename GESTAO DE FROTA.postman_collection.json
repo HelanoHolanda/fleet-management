@@ -1,0 +1,494 @@
+{
+  "info": {
+    "_postman_id": "6401abf1-8576-47ad-92e8-dc87b24faaed",
+    "name": "GESTAO DE FROTA",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "36757551"
+  },
+  "item": [
+    {
+      "name": "Modelos",
+      "item": [
+        {
+          "name": "criar modelo",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzQUI4MkU3Ri0yQzFCLTQxQ0YtQThBMi0zOTczMDE5NzY3QjciLCJuaWNrbmFtZSI6ImFpdmFjb2wiLCJpYXQiOjE3ODA3MTc5NDksImV4cCI6MTc4MDgwNDM0OX0.PfAfhLJvJHLq8x_n0pEQ01GUZZl8Srn2_oVI0UBN8aA",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "\r\n{\r\n    \"name\":\"BYD 1.0\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3535/models",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3535",
+              "path": [
+                "models"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "listar modelos",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzQUI4MkU3Ri0yQzFCLTQxQ0YtQThBMi0zOTczMDE5NzY3QjciLCJuaWNrbmFtZSI6ImFpdmFjb2wiLCJpYXQiOjE3ODA3MTc5NDksImV4cCI6MTc4MDgwNDM0OX0.PfAfhLJvJHLq8x_n0pEQ01GUZZl8Srn2_oVI0UBN8aA",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3535/models",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3535",
+              "path": [
+                "models"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "atualizar modelos",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzQUI4MkU3Ri0yQzFCLTQxQ0YtQThBMi0zOTczMDE5NzY3QjciLCJuaWNrbmFtZSI6ImFpdmFjb2wiLCJpYXQiOjE3ODA3MTc5NDksImV4cCI6MTc4MDgwNDM0OX0.PfAfhLJvJHLq8x_n0pEQ01GUZZl8Srn2_oVI0UBN8aA",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\":\"BYD 1.0\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3535/models/C6916290-57CB-4A9C-80B7-1724E4213963",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3535",
+              "path": [
+                "models",
+                "C6916290-57CB-4A9C-80B7-1724E4213963"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "deletar modelo",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzQUI4MkU3Ri0yQzFCLTQxQ0YtQThBMi0zOTczMDE5NzY3QjciLCJuaWNrbmFtZSI6ImFpdmFjb2wiLCJpYXQiOjE3ODA3MTc5NDksImV4cCI6MTc4MDgwNDM0OX0.PfAfhLJvJHLq8x_n0pEQ01GUZZl8Srn2_oVI0UBN8aA",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3535/models/2461B6C1-7721-4868-B28E-D39907DBE0CE",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3535",
+              "path": [
+                "models",
+                "2461B6C1-7721-4868-B28E-D39907DBE0CE"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Vehicles",
+      "item": [
+        {
+          "name": "criar veiculo",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzQUI4MkU3Ri0yQzFCLTQxQ0YtQThBMi0zOTczMDE5NzY3QjciLCJuaWNrbmFtZSI6ImFpdmFjb2wiLCJpYXQiOjE3ODA3MTc5NDksImV4cCI6MTc4MDgwNDM0OX0.PfAfhLJvJHLq8x_n0pEQ01GUZZl8Srn2_oVI0UBN8aA",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"licensePlate\": \"CCCC-1111\",\r\n  \"chassis\": \"1BWZZZ377GT004206\",\r\n  \"renavam\": \"12346478278\",\r\n  \"year\": 2026,\r\n  \"modelId\": \"2461B6C1-7721-4868-B28E-D39907DBE0CE\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3535/vehicles",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3535",
+              "path": [
+                "vehicles"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "listar veiculos",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzQUI4MkU3Ri0yQzFCLTQxQ0YtQThBMi0zOTczMDE5NzY3QjciLCJuaWNrbmFtZSI6ImFpdmFjb2wiLCJpYXQiOjE3ODA3MTc5NDksImV4cCI6MTc4MDgwNDM0OX0.PfAfhLJvJHLq8x_n0pEQ01GUZZl8Srn2_oVI0UBN8aA",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3535/vehicles",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3535",
+              "path": [
+                "vehicles"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "atualizar veiculo",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzQUI4MkU3Ri0yQzFCLTQxQ0YtQThBMi0zOTczMDE5NzY3QjciLCJuaWNrbmFtZSI6ImFpdmFjb2wiLCJpYXQiOjE3ODA3MTc5NDksImV4cCI6MTc4MDgwNDM0OX0.PfAfhLJvJHLq8x_n0pEQ01GUZZl8Srn2_oVI0UBN8aA",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"licensePlate\": \"FFFF-1111\",\r\n  \"chassis\": \"1BWZZZ377GT003278\",\r\n  \"renavam\": \"12346478956\",\r\n  \"year\": 2024\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3535/vehicles/3DE22FD9-3EE4-4035-9551-94F49148424F",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3535",
+              "path": [
+                "vehicles",
+                "3DE22FD9-3EE4-4035-9551-94F49148424F"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "deletar veiculo",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzQUI4MkU3Ri0yQzFCLTQxQ0YtQThBMi0zOTczMDE5NzY3QjciLCJuaWNrbmFtZSI6ImFpdmFjb2wiLCJpYXQiOjE3ODA3MTc5NDksImV4cCI6MTc4MDgwNDM0OX0.PfAfhLJvJHLq8x_n0pEQ01GUZZl8Srn2_oVI0UBN8aA",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3535/vehicles/3DE22FD9-3EE4-4035-9551-94F49148424F",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3535",
+              "path": [
+                "vehicles",
+                "3DE22FD9-3EE4-4035-9551-94F49148424F"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Marcas",
+      "item": [
+        {
+          "name": "criar marca",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzQUI4MkU3Ri0yQzFCLTQxQ0YtQThBMi0zOTczMDE5NzY3QjciLCJuaWNrbmFtZSI6ImFpdmFjb2wiLCJpYXQiOjE3ODA3OTY5NDEsImV4cCI6MTc4MDg4MzM0MX0.NhAFJaz0PcRFhN_u91SrHOxNK6zbV7lHsN6xefKQRNc",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"HYUNDAI\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3535/brands",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3535",
+              "path": [
+                "brands"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "listar marcas",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzQUI4MkU3Ri0yQzFCLTQxQ0YtQThBMi0zOTczMDE5NzY3QjciLCJuaWNrbmFtZSI6ImFpdmFjb2wiLCJpYXQiOjE3ODA3OTY5NDEsImV4cCI6MTc4MDg4MzM0MX0.NhAFJaz0PcRFhN_u91SrHOxNK6zbV7lHsN6xefKQRNc",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3535/brands",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3535",
+              "path": [
+                "brands"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "deletar marca",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzQUI4MkU3Ri0yQzFCLTQxQ0YtQThBMi0zOTczMDE5NzY3QjciLCJuaWNrbmFtZSI6ImFpdmFjb2wiLCJpYXQiOjE3ODA3OTY5NDEsImV4cCI6MTc4MDg4MzM0MX0.NhAFJaz0PcRFhN_u91SrHOxNK6zbV7lHsN6xefKQRNc",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3535/brands/B5CA7127-29C0-4A97-947F-DB3B92EC66A6",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3535",
+              "path": [
+                "brands",
+                "B5CA7127-29C0-4A97-947F-DB3B92EC66A6"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "atualizar marca",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzQUI4MkU3Ri0yQzFCLTQxQ0YtQThBMi0zOTczMDE5NzY3QjciLCJuaWNrbmFtZSI6ImFpdmFjb2wiLCJpYXQiOjE3ODA3OTY5NDEsImV4cCI6MTc4MDg4MzM0MX0.NhAFJaz0PcRFhN_u91SrHOxNK6zbV7lHsN6xefKQRNc",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"FIAT\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3535/brands/B5CA7127-29C0-4A97-947F-DB3B92EC66A6",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3535",
+              "path": [
+                "brands",
+                "B5CA7127-29C0-4A97-947F-DB3B92EC66A6"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "associar marca a modelo",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzQUI4MkU3Ri0yQzFCLTQxQ0YtQThBMi0zOTczMDE5NzY3QjciLCJuaWNrbmFtZSI6ImFpdmFjb2wiLCJpYXQiOjE3ODA3MTc5NDksImV4cCI6MTc4MDgwNDM0OX0.PfAfhLJvJHLq8x_n0pEQ01GUZZl8Srn2_oVI0UBN8aA",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3535/brands/311C5D63-E424-419C-B55E-9761594C53BF/models/8B13C15B-E560-4C40-9ED5-79308EBB6642",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3535",
+              "path": [
+                "brands",
+                "311C5D63-E424-419C-B55E-9761594C53BF",
+                "models",
+                "8B13C15B-E560-4C40-9ED5-79308EBB6642"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "login",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"nickname\": \"aivacol\",\r\n  \"password\": \"aivacol123\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:3535/auth/login",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3535",
+          "path": [
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

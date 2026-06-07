@@ -74,6 +74,10 @@ npm run seed:aivacol
 npm run start:dev
 ```
 
+## 📮 Postman
+
+Importe o arquivo `fleet-management.postman_collection.json` no Postman para ter todas as rotas prontas.
+
 ## 🔐 Autenticação
 
 Todas as rotas são protegidas por JWT. Para obter o token:
