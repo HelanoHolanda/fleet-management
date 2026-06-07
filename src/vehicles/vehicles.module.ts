@@ -8,9 +8,10 @@ import { CreateVehicleUseCase } from './use-cases/create-vehicles.use-case';
 import { DeleteVehicleUseCase } from './use-cases/delete-vehicle.use-case';
 import { FindAllVehiclesUseCase } from './use-cases/find-all-vehicles.use-case';
 import { UpdateVehicleUseCase } from './use-cases/update-vehicle.use-case';
+import { MessagingModule } from 'src/messaging/messaging.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Vehicle]), ModelsModule],
+  imports: [TypeOrmModule.forFeature([Vehicle]), ModelsModule, MessagingModule],
   controllers: [VehiclesController],
   providers: [
     VehiclesRepository,

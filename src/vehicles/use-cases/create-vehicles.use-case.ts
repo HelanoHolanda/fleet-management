@@ -10,6 +10,7 @@ import { CreateVehicleDto } from '../dto/create-vehicle.dto';
 import { VehiclesRepository } from '../repositories/vehicles.repository';
 import { ModelsRepository } from '../../models/repositories/models.repository';
 import { Vehicle } from '../entities/vehicle.entity';
+import { VehiclePublisher } from 'src/messaging/publishers/vehicles.publiser';
 
 @Injectable()
 export class CreateVehicleUseCase {
@@ -18,6 +19,7 @@ export class CreateVehicleUseCase {
     private readonly modelsRepository: ModelsRepository,
     @Inject(CACHE_MANAGER)
     private readonly cacheManager: Cache,
+    private readonly vehiclePublisher: VehiclePublisher,
   ) {}
 
   async execute(dto: CreateVehicleDto, createdBy: string): Promise<Vehicle> {
@@ -45,6 +47,13 @@ export class CreateVehicleUseCase {
     });
 
     await this.cacheManager.del('vehicles:all');
+
+    await this.vehiclePublisher.publish({
+      event: 'vehicle.created',
+      vehicleId: vehicle.id,
+      timestamp: new Date(),
+      data: vehicle,
+    });
 
     return vehicle;
   }

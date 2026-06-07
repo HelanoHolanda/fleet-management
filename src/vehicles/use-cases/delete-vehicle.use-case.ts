@@ -2,6 +2,7 @@ import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import type { Cache } from 'cache-manager';
 import { VehiclesRepository } from '../repositories/vehicles.repository';
+import { VehiclePublisher } from 'src/messaging/publishers/vehicles.publiser';
 
 @Injectable()
 export class DeleteVehicleUseCase {
@@ -9,6 +10,7 @@ export class DeleteVehicleUseCase {
     private readonly vehiclesRepository: VehiclesRepository,
     @Inject(CACHE_MANAGER)
     private readonly cacheManager: Cache,
+    private readonly vehiclePublisher: VehiclePublisher,
   ) {}
 
   async execute(id: string): Promise<void> {
@@ -18,5 +20,11 @@ export class DeleteVehicleUseCase {
     await this.vehiclesRepository.delete(id);
 
     await this.cacheManager.del('vehicles:all');
+
+    await this.vehiclePublisher.publish({
+      event: 'vehicle.deleted',
+      vehicleId: id,
+      timestamp: new Date(),
+    });
   }
 }

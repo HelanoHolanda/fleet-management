@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
 import { VehiclePublisher } from './publishers/vehicles.publiser';
+import { VehicleConsumer } from './consumers/vehicles.consumer';
 
 @Module({
   imports: [
@@ -22,7 +23,7 @@ import { VehiclePublisher } from './publishers/vehicles.publiser';
       }),
     }),
   ],
-  providers: [VehiclePublisher],
+  providers: [VehiclePublisher, VehicleConsumer],
   exports: [VehiclePublisher],
 })
 export class MessagingModule {}

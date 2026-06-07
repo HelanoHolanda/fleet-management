@@ -10,6 +10,7 @@ import type { Cache } from 'cache-manager';
 import { UpdateVehicleDto } from '../dto/update-vehicle.dto';
 import { VehiclesRepository } from '../repositories/vehicles.repository';
 import { Vehicle } from '../entities/vehicle.entity';
+import { VehiclePublisher } from 'src/messaging/publishers/vehicles.publiser';
 
 @Injectable()
 export class UpdateVehicleUseCase {
@@ -17,6 +18,7 @@ export class UpdateVehicleUseCase {
     private readonly vehiclesRepository: VehiclesRepository,
     @Inject(CACHE_MANAGER)
     private readonly cacheManager: Cache,
+    private readonly vehiclePublisher: VehiclePublisher,
   ) {}
 
   async execute(id: string, dto: UpdateVehicleDto): Promise<Vehicle> {
@@ -50,6 +52,13 @@ export class UpdateVehicleUseCase {
     const updated = await this.vehiclesRepository.update(id, dto);
 
     await this.cacheManager.del('vehicles:all');
+
+    await this.vehiclePublisher.publish({
+      event: 'vehicle.updated',
+      vehicleId: updated.id,
+      timestamp: new Date(),
+      data: updated,
+    });
 
     return updated;
   }
