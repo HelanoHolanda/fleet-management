@@ -4,6 +4,7 @@ import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
 export interface VehicleEvent {
   event: 'vehicle.created' | 'vehicle.updated' | 'vehicle.deleted';
   vehicleId: string;
+  userId: string;
   timestamp: Date;
   data?: unknown;
 }

@@ -56,6 +56,7 @@ export class UpdateVehicleUseCase {
     await this.vehiclePublisher.publish({
       event: 'vehicle.updated',
       vehicleId: updated.id,
+      userId: updated.createdBy || 'system',
       timestamp: new Date(),
       data: updated,
     });

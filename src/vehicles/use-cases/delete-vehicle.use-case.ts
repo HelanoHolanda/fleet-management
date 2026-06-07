@@ -24,6 +24,7 @@ export class DeleteVehicleUseCase {
     await this.vehiclePublisher.publish({
       event: 'vehicle.deleted',
       vehicleId: id,
+      userId: vehicle.createdBy || 'system',
       timestamp: new Date(),
     });
   }

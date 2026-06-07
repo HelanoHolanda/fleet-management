@@ -51,6 +51,7 @@ export class CreateVehicleUseCase {
     await this.vehiclePublisher.publish({
       event: 'vehicle.created',
       vehicleId: vehicle.id,
+      userId: createdBy,
       timestamp: new Date(),
       data: vehicle,
     });
