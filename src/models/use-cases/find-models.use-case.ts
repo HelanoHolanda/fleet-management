@@ -6,7 +6,14 @@ import { ModelsRepository } from '../repositories/models.repository';
 export class FindModelsUseCase {
   constructor(private readonly modelsRepository: ModelsRepository) {}
 
-  async execute(): Promise<Model[]> {
-    return this.modelsRepository.findAll();
+  async execute(
+    page = 1,
+    limit = 10,
+  ): Promise<{
+    items: Partial<Model>[];
+    total: number;
+    page: number;
+  }> {
+    return await this.modelsRepository.findAll(page, limit);
   }
 }

@@ -24,10 +24,15 @@ describe('FindBrandsUseCase', () => {
     );
   });
 
-  it('should list all brands', async () => {
-    brandsRepository.findAll.mockResolvedValue([brand]);
+  it('should list paginated brands', async () => {
+    const response = {
+      items: [brand],
+      total: 1,
+      page: 2,
+    };
+    brandsRepository.findAll.mockResolvedValue(response);
 
-    await expect(useCase.execute()).resolves.toEqual([brand]);
-    expect(brandsRepository.findAll).toHaveBeenCalledTimes(1);
+    await expect(useCase.execute(2, 5)).resolves.toEqual(response);
+    expect(brandsRepository.findAll).toHaveBeenCalledWith(2, 5);
   });
 });

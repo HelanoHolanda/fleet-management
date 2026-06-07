@@ -17,20 +17,24 @@ describe('FindAllVehiclesUseCase', () => {
     createdBy: 'user-id',
   };
 
-  const vehicles: Vehicle[] = [
-    {
-      id: 'vehicle-id',
-      licensePlate: 'ABC1D23',
-      chassis: '9BWZZZ377VT004251',
-      renavam: '12345678901',
-      year: 2024,
-      modelId: 'model-id',
-      model,
-      createdAt: new Date('2026-06-05T00:00:00.000Z'),
-      updatedAt: new Date('2026-06-05T00:00:00.000Z'),
-      createdBy: 'user-id',
-    },
-  ];
+  const vehicle: Vehicle = {
+    id: 'vehicle-id',
+    licensePlate: 'ABC1D23',
+    chassis: '9BWZZZ377VT004251',
+    renavam: '12345678901',
+    year: 2024,
+    modelId: 'model-id',
+    model,
+    createdAt: new Date('2026-06-05T00:00:00.000Z'),
+    updatedAt: new Date('2026-06-05T00:00:00.000Z'),
+    createdBy: 'user-id',
+  };
+
+  const response = {
+    items: [vehicle],
+    total: 1,
+    page: 1,
+  };
 
   beforeEach(() => {
     vehiclesRepository = {
@@ -48,18 +52,21 @@ describe('FindAllVehiclesUseCase', () => {
   });
 
   it('should return vehicles from cache when available', async () => {
-    cacheManager.get.mockResolvedValue(vehicles);
+    cacheManager.get.mockResolvedValue(response);
 
-    await expect(useCase.execute()).resolves.toEqual(vehicles);
+    await expect(useCase.execute()).resolves.toEqual(response);
     expect(vehiclesRepository.findAll).not.toHaveBeenCalled();
   });
 
   it('should fetch vehicles and save them in cache when cache is empty', async () => {
     cacheManager.get.mockResolvedValue(undefined);
-    vehiclesRepository.findAll.mockResolvedValue(vehicles);
+    vehiclesRepository.findAll.mockResolvedValue(response);
 
-    await expect(useCase.execute()).resolves.toEqual(vehicles);
-    expect(vehiclesRepository.findAll).toHaveBeenCalledTimes(1);
-    expect(cacheManager.set).toHaveBeenCalledWith('vehicles:all', vehicles);
+    await expect(useCase.execute()).resolves.toEqual(response);
+    expect(vehiclesRepository.findAll).toHaveBeenCalledWith(1, 10);
+    expect(cacheManager.set).toHaveBeenCalledWith(
+      'vehicles:all:page:1:limit:10',
+      response,
+    );
   });
 });

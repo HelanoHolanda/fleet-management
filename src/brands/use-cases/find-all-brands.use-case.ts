@@ -6,7 +6,14 @@ import { BrandsRepository } from '../repositories/brands.repository';
 export class FindBrandsUseCase {
   constructor(private readonly brandsRepository: BrandsRepository) {}
 
-  async execute(): Promise<Brand[]> {
-    return this.brandsRepository.findAll();
+  async execute(
+    page = 1,
+    limit = 10,
+  ): Promise<{
+    items: Partial<Brand>[];
+    total: number;
+    page: number;
+  }> {
+    return this.brandsRepository.findAll(page, limit);
   }
 }

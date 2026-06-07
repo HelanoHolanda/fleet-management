@@ -1,5 +1,5 @@
-import { User } from '../../users/entities/user.entity';
 import { Model } from '../../models/entities/model.entity';
+import { User } from '../../users/entities/user.entity';
 import { Vehicle } from '../entities/vehicle.entity';
 import { CreateVehicleUseCase } from '../use-cases/create-vehicles.use-case';
 import { DeleteVehicleUseCase } from '../use-cases/delete-vehicle.use-case';
@@ -48,16 +48,6 @@ describe('VehiclesController', () => {
     createdBy: 'user-id',
   };
 
-  const vehicleResponse = {
-    licensePlate: 'ABC1D23',
-    chassis: '9BWZZZ377VT004251',
-    renavam: '12345678901',
-    year: 2024,
-    model: {
-      name: 'Corolla',
-    },
-  };
-
   beforeEach(() => {
     createVehicleUseCase = { execute: jest.fn() };
     findAllVehiclesUseCase = { execute: jest.fn() };
@@ -73,7 +63,20 @@ describe('VehiclesController', () => {
   });
 
   it('should create a vehicle using current user id', async () => {
-    createVehicleUseCase.execute.mockResolvedValue(vehicle);
+    const response = {
+      message: 'Veiculo criado com sucesso',
+      data: {
+        licensePlate: vehicle.licensePlate,
+        chassis: vehicle.chassis,
+        renavam: vehicle.renavam,
+        year: vehicle.year,
+        model: {
+          id: model.id,
+          name: model.name,
+        },
+      },
+    };
+    createVehicleUseCase.execute.mockResolvedValue(response);
 
     const dto = {
       licensePlate: 'ABC1D23',
@@ -86,30 +89,52 @@ describe('VehiclesController', () => {
     const result = await controller.create(dto, user);
 
     expect(createVehicleUseCase.execute).toHaveBeenCalledWith(dto, 'user-id');
-    expect(result).toEqual(vehicleResponse);
+    expect(result).toEqual(response);
   });
 
   it('should list vehicles', async () => {
-    findAllVehiclesUseCase.execute.mockResolvedValue([vehicle]);
+    const response = {
+      items: [vehicle],
+      total: 1,
+      page: 1,
+    };
+    findAllVehiclesUseCase.execute.mockResolvedValue(response);
 
-    await expect(controller.findAll()).resolves.toEqual([vehicle]);
+    await expect(controller.findAll()).resolves.toEqual(response);
   });
 
   it('should update a vehicle', async () => {
-    updateVehicleUseCase.execute.mockResolvedValue(vehicle);
+    const response = {
+      message: 'Veiculo atualizado com sucesso',
+      data: {
+        id: vehicle.id,
+        licensePlate: vehicle.licensePlate,
+        chassis: vehicle.chassis,
+        renavam: vehicle.renavam,
+        year: vehicle.year,
+        model: {
+          id: model.id,
+          name: model.name,
+        },
+      },
+    };
+    updateVehicleUseCase.execute.mockResolvedValue(response);
 
     await expect(
       controller.update('vehicle-id', { licensePlate: 'ABC1D23' }),
-    ).resolves.toEqual(vehicleResponse);
+    ).resolves.toEqual(response);
     expect(updateVehicleUseCase.execute).toHaveBeenCalledWith('vehicle-id', {
       licensePlate: 'ABC1D23',
     });
   });
 
   it('should delete a vehicle', async () => {
-    deleteVehicleUseCase.execute.mockResolvedValue(undefined);
+    const response = {
+      message: 'Veiculo removido com sucesso.',
+    };
+    deleteVehicleUseCase.execute.mockResolvedValue(response);
 
-    await expect(controller.delete('vehicle-id')).resolves.toBeUndefined();
+    await expect(controller.delete('vehicle-id')).resolves.toEqual(response);
     expect(deleteVehicleUseCase.execute).toHaveBeenCalledWith('vehicle-id');
   });
 });

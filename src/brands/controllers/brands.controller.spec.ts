@@ -1,5 +1,3 @@
-import { Model } from '../../models/entities/model.entity';
-import { Brand } from '../entities/brand.entity';
 import { AssociateModelToBrandUseCase } from '../use-cases/associate-model-to-brand.use-case';
 import { CreateBrandUseCase } from '../use-cases/create-brand.use-case';
 import { DeleteBrandUseCase } from '../use-cases/delete-brand.use-case';
@@ -21,21 +19,13 @@ describe('BrandsController', () => {
   const brandId = '11111111-1111-4111-8111-111111111111';
   const modelId = '22222222-2222-4222-8222-222222222222';
 
-  const brand: Brand = {
-    id: brandId,
-    name: 'Toyota',
-    createdAt: new Date('2026-06-06T00:00:00.000Z'),
-    updatedAt: new Date('2026-06-06T00:00:00.000Z'),
-    createdBy: userId,
-  };
-
-  const model: Model = {
-    id: modelId,
-    name: 'Corolla',
-    brandId,
-    createdAt: new Date('2026-06-06T00:00:00.000Z'),
-    updatedAt: new Date('2026-06-06T00:00:00.000Z'),
-    createdBy: userId,
+  const brandResponse = {
+    message: 'Marca criada com sucesso.',
+    data: {
+      id: brandId,
+      name: 'Toyota',
+      createdAt: new Date('2026-06-06T00:00:00.000Z'),
+    },
   };
 
   beforeEach(() => {
@@ -54,8 +44,8 @@ describe('BrandsController', () => {
     );
   });
 
-  it('should create a brand using current user id and response pattern', async () => {
-    createBrandUseCase.execute.mockResolvedValue(brand);
+  it('should create a brand using current user id', async () => {
+    createBrandUseCase.execute.mockResolvedValue(brandResponse);
 
     const result = await controller.create({ name: 'Toyota' }, {
       id: userId,
@@ -65,65 +55,68 @@ describe('BrandsController', () => {
       { name: 'Toyota' },
       userId,
     );
-    expect(result).toEqual({
-      success: true,
-      message: 'Marca criada com sucesso.',
-      data: brand,
-    });
+    expect(result).toEqual(brandResponse);
   });
 
-  it('should list brands using response pattern', async () => {
-    findBrandsUseCase.execute.mockResolvedValue([brand]);
+  it('should list paginated brands', async () => {
+    const response = {
+      items: [brandResponse.data],
+      total: 1,
+      page: 2,
+    };
+    findBrandsUseCase.execute.mockResolvedValue(response);
 
-    await expect(controller.findAll()).resolves.toEqual({
-      success: true,
-      message: 'Marcas consultadas com sucesso.',
-      data: [brand],
-    });
+    await expect(controller.findAll('2', '5')).resolves.toEqual(response);
+    expect(findBrandsUseCase.execute).toHaveBeenCalledWith(2, 5);
   });
 
-  it('should update a brand using response pattern', async () => {
-    const updatedBrand = { ...brand, name: 'Honda' };
-    updateBrandUseCase.execute.mockResolvedValue(updatedBrand);
+  it('should update a brand', async () => {
+    const updatedResponse = {
+      message: 'Marca atualizada com sucesso.',
+      data: {
+        ...brandResponse.data,
+        name: 'Honda',
+      },
+    };
+    updateBrandUseCase.execute.mockResolvedValue(updatedResponse);
 
     const result = await controller.update(brandId, { name: 'Honda' });
 
     expect(updateBrandUseCase.execute).toHaveBeenCalledWith(brandId, {
       name: 'Honda',
     });
-    expect(result).toEqual({
-      success: true,
-      message: 'Marca atualizada com sucesso.',
-      data: updatedBrand,
-    });
+    expect(result).toEqual(updatedResponse);
   });
 
-  it('should delete a brand using response pattern', async () => {
-    deleteBrandUseCase.execute.mockResolvedValue(undefined);
+  it('should delete a brand', async () => {
+    const response = {
+      message: 'Marca removida com sucesso.',
+    };
+    deleteBrandUseCase.execute.mockResolvedValue(response);
 
     const result = await controller.delete(brandId);
 
     expect(deleteBrandUseCase.execute).toHaveBeenCalledWith(brandId);
-    expect(result).toEqual({
-      success: true,
-      message: 'Marca removida com sucesso.',
-      data: null,
-    });
+    expect(result).toEqual(response);
   });
 
-  it('should associate a model to a brand using response pattern', async () => {
-    associateModelToBrandUseCase.execute.mockResolvedValue(model);
+  it('should associate a model to a brand', async () => {
+    const response = {
+      message: 'Modelo associado a marca com sucesso.',
+      data: {
+        id: modelId,
+        name: 'Corolla',
+        brandId,
+      },
+    };
+    associateModelToBrandUseCase.execute.mockResolvedValue(response);
 
-    const result = await controller.associateModel(brandId, modelId);
+    const result = await controller.associateModel({ brandId, modelId });
 
     expect(associateModelToBrandUseCase.execute).toHaveBeenCalledWith(
       brandId,
       modelId,
     );
-    expect(result).toEqual({
-      success: true,
-      message: 'Modelo associado a marca com sucesso.',
-      data: model,
-    });
+    expect(result).toEqual(response);
   });
 });

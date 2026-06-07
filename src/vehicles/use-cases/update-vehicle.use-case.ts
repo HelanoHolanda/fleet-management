@@ -10,7 +10,17 @@ import type { Cache } from 'cache-manager';
 import { UpdateVehicleDto } from '../dto/update-vehicle.dto';
 import { VehiclesRepository } from '../repositories/vehicles.repository';
 import { Vehicle } from '../entities/vehicle.entity';
-import { VehiclePublisher } from 'src/messaging/publishers/vehicles.publiser';
+import { VehiclePublisher } from '../../messaging/publishers/vehicles.publiser';
+
+type UpdateVehicleResponse = {
+  message: string;
+  data: Partial<Omit<Vehicle, 'model'>> & {
+    model: {
+      id: string;
+      name: string;
+    };
+  };
+};
 
 @Injectable()
 export class UpdateVehicleUseCase {
@@ -21,32 +31,44 @@ export class UpdateVehicleUseCase {
     private readonly vehiclePublisher: VehiclePublisher,
   ) {}
 
-  async execute(id: string, dto: UpdateVehicleDto): Promise<Vehicle> {
+  async execute(
+    id: string,
+    dto: UpdateVehicleDto,
+  ): Promise<UpdateVehicleResponse> {
     const vehicle = await this.vehiclesRepository.findById(id);
-    if (!vehicle) throw new NotFoundException('Veículo não encontrado');
+
+    if (!vehicle) {
+      throw new NotFoundException('Veículo não encontrado');
+    }
 
     if (dto.licensePlate) {
       const plateExists = await this.vehiclesRepository.findByLicensePlate(
         dto.licensePlate,
       );
-      if (plateExists && plateExists.id !== id)
+
+      if (plateExists && plateExists.id !== id) {
         throw new ConflictException('Placa já cadastrada');
+      }
     }
 
     if (dto.chassis) {
       const chassisExists = await this.vehiclesRepository.findByChassis(
         dto.chassis,
       );
-      if (chassisExists && chassisExists.id !== id)
+
+      if (chassisExists && chassisExists.id !== id) {
         throw new ConflictException('Chassi já cadastrado');
+      }
     }
 
     if (dto.renavam) {
       const renavamExists = await this.vehiclesRepository.findByRenavam(
         dto.renavam,
       );
-      if (renavamExists && renavamExists.id !== id)
-        throw new ConflictException('Renavam já cadastrado');
+
+      if (renavamExists && renavamExists.id !== id) {
+        throw new ConflictException('Renavam já cadastrada');
+      }
     }
 
     const updated = await this.vehiclesRepository.update(id, dto);
@@ -61,6 +83,19 @@ export class UpdateVehicleUseCase {
       data: updated,
     });
 
-    return updated;
+    return {
+      message: 'Veículo atualizado com sucesso',
+      data: {
+        id: updated.id,
+        licensePlate: updated.licensePlate,
+        chassis: updated.chassis,
+        renavam: updated.renavam,
+        year: updated.year,
+        model: {
+          id: updated.model.id,
+          name: updated.model.name,
+        },
+      },
+    };
   }
 }

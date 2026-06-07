@@ -2,7 +2,7 @@ import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import type { Cache } from 'cache-manager';
 import { VehiclesRepository } from '../repositories/vehicles.repository';
-import { VehiclePublisher } from 'src/messaging/publishers/vehicles.publiser';
+import { VehiclePublisher } from '../../messaging/publishers/vehicles.publiser';
 
 @Injectable()
 export class DeleteVehicleUseCase {
@@ -13,7 +13,7 @@ export class DeleteVehicleUseCase {
     private readonly vehiclePublisher: VehiclePublisher,
   ) {}
 
-  async execute(id: string): Promise<void> {
+  async execute(id: string): Promise<{ message: string }> {
     const vehicle = await this.vehiclesRepository.findById(id);
     if (!vehicle) throw new NotFoundException('Veículo não encontrado');
 
@@ -27,5 +27,9 @@ export class DeleteVehicleUseCase {
       userId: vehicle.createdBy || 'system',
       timestamp: new Date(),
     });
+
+    return {
+      message: 'Veículo removido com sucesso.',
+    };
   }
 }

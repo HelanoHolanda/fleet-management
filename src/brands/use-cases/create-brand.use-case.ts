@@ -1,12 +1,7 @@
 import { ConflictException, Injectable } from '@nestjs/common';
-import { QueryFailedError } from 'typeorm';
 import { CreateBrandDto } from '../dto/create-brand.dto';
 import { Brand } from '../entities/brand.entity';
 import { BrandsRepository } from '../repositories/brands.repository';
-
-interface DatabaseError extends QueryFailedError {
-  number?: number;
-}
 
 @Injectable()
 export class CreateBrandUseCase {
@@ -15,25 +10,28 @@ export class CreateBrandUseCase {
   async execute(
     dto: CreateBrandDto,
     createdBy?: string | null,
-  ): Promise<Brand> {
-    try {
-      return await this.brandsRepository.create({
-        ...dto,
-        createdBy,
-      });
-    } catch (error) {
-      const databaseError = error as DatabaseError;
+  ): Promise<{
+    message: string;
+    data: Partial<Brand>;
+  }> {
+    const nameExists = await this.brandsRepository.verifyNameExists(dto.name);
 
-      if (
-        error instanceof QueryFailedError &&
-        (databaseError.number === 2601 || databaseError.number === 2627)
-      ) {
-        throw new ConflictException(
-          'Ja existe uma marca cadastrada com esse nome.',
-        );
-      }
-
-      throw error;
+    if (nameExists) {
+      throw new ConflictException('Marca ja cadastrada com esse nome.');
     }
+
+    const brand = await this.brandsRepository.create({
+      ...dto,
+      createdBy,
+    });
+
+    return {
+      message: 'Marca criada com sucesso.',
+      data: {
+        id: brand.id,
+        name: brand.name,
+        createdAt: brand.createdAt,
+      },
+    };
   }
 }

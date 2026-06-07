@@ -1,12 +1,13 @@
 import { ConflictException } from '@nestjs/common';
-import { QueryFailedError } from 'typeorm';
 import { Model } from '../entities/model.entity';
 import { ModelsRepository } from '../repositories/models.repository';
 import { CreateModelUseCase } from './create-model.use-case';
 
 describe('CreateModelUseCase', () => {
   let useCase: CreateModelUseCase;
-  let modelsRepository: jest.Mocked<Pick<ModelsRepository, 'create'>>;
+  let modelsRepository: jest.Mocked<
+    Pick<ModelsRepository, 'verifyNameExists' | 'create'>
+  >;
 
   const model: Model = {
     id: 'model-id',
@@ -18,6 +19,7 @@ describe('CreateModelUseCase', () => {
 
   beforeEach(() => {
     modelsRepository = {
+      verifyNameExists: jest.fn(),
       create: jest.fn(),
     };
 
@@ -26,38 +28,33 @@ describe('CreateModelUseCase', () => {
     );
   });
 
-  it('should create a model with createdBy', async () => {
+  it('should create a model with createdBy and return response pattern', async () => {
+    modelsRepository.verifyNameExists.mockResolvedValue(false);
     modelsRepository.create.mockResolvedValue(model);
 
     const result = await useCase.execute({ name: 'Corolla' }, 'user-id');
 
+    expect(modelsRepository.verifyNameExists).toHaveBeenCalledWith('Corolla');
     expect(modelsRepository.create).toHaveBeenCalledWith({
       name: 'Corolla',
       createdBy: 'user-id',
     });
-    expect(result).toEqual(model);
+    expect(result).toEqual({
+      message: 'Modelo criado com sucesso',
+      data: {
+        id: model.id,
+        name: model.name,
+        createdAt: model.createdAt,
+      },
+    });
   });
 
   it('should throw ConflictException when model name already exists', async () => {
-    const error = Object.assign(
-      new QueryFailedError('', [], {
-        code: '23505',
-      } as unknown as Error),
-      { code: '23505' },
-    );
-    modelsRepository.create.mockRejectedValue(error);
+    modelsRepository.verifyNameExists.mockResolvedValue(true);
 
     await expect(
       useCase.execute({ name: 'Corolla' }, 'user-id'),
     ).rejects.toBeInstanceOf(ConflictException);
-  });
-
-  it('should rethrow unknown errors', async () => {
-    const error = new Error('database unavailable');
-    modelsRepository.create.mockRejectedValue(error);
-
-    await expect(
-      useCase.execute({ name: 'Corolla' }, 'user-id'),
-    ).rejects.toThrow(error);
+    expect(modelsRepository.create).not.toHaveBeenCalled();
   });
 });

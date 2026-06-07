@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  ConflictException,
-  NotFoundException,
-} from '@nestjs/common';
+import { ConflictException, NotFoundException } from '@nestjs/common';
 import { Model } from '../entities/model.entity';
 import { ModelsRepository } from '../repositories/models.repository';
 import { DeleteModelUseCase } from './delete-model.use-case';
@@ -40,7 +36,9 @@ describe('DeleteModelUseCase', () => {
     modelsRepository.hasVehicles.mockResolvedValue(false);
     modelsRepository.delete.mockResolvedValue(undefined);
 
-    await expect(useCase.execute(modelId)).resolves.toBeUndefined();
+    await expect(useCase.execute(modelId)).resolves.toEqual({
+      message: 'Modelo removido com sucesso.',
+    });
     expect(modelsRepository.findById).toHaveBeenCalledWith(modelId);
     expect(modelsRepository.delete).toHaveBeenCalledWith(modelId);
   });
@@ -51,14 +49,6 @@ describe('DeleteModelUseCase', () => {
     await expect(useCase.execute(modelId)).rejects.toBeInstanceOf(
       NotFoundException,
     );
-    expect(modelsRepository.delete).not.toHaveBeenCalled();
-  });
-
-  it('should throw BadRequestException when id is not a valid uuid', async () => {
-    await expect(useCase.execute('id-invalido')).rejects.toBeInstanceOf(
-      BadRequestException,
-    );
-    expect(modelsRepository.findById).not.toHaveBeenCalled();
     expect(modelsRepository.delete).not.toHaveBeenCalled();
   });
 

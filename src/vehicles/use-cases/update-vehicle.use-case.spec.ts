@@ -4,6 +4,7 @@ import { Model } from '../../models/entities/model.entity';
 import { Vehicle } from '../entities/vehicle.entity';
 import { VehiclesRepository } from '../repositories/vehicles.repository';
 import { UpdateVehicleUseCase } from './update-vehicle.use-case';
+import { VehiclePublisher } from '../../messaging/publishers/vehicles.publiser';
 
 describe('UpdateVehicleUseCase', () => {
   let useCase: UpdateVehicleUseCase;
@@ -18,6 +19,7 @@ describe('UpdateVehicleUseCase', () => {
     >
   >;
   let cacheManager: jest.Mocked<Pick<Cache, 'del'>>;
+  let vehiclePublisher: jest.Mocked<Pick<VehiclePublisher, 'publish'>>;
 
   const model: Model = {
     id: 'model-id',
@@ -51,10 +53,14 @@ describe('UpdateVehicleUseCase', () => {
     cacheManager = {
       del: jest.fn(),
     };
+    vehiclePublisher = {
+      publish: jest.fn(),
+    };
 
     useCase = new UpdateVehicleUseCase(
       vehiclesRepository as unknown as VehiclesRepository,
       cacheManager as unknown as Cache,
+      vehiclePublisher as unknown as VehiclePublisher,
     );
   });
 
@@ -74,7 +80,14 @@ describe('UpdateVehicleUseCase', () => {
       licensePlate: 'XYZ9A88',
     });
     expect(cacheManager.del).toHaveBeenCalledWith('vehicles:all');
-    expect(result.licensePlate).toBe('XYZ9A88');
+    expect(vehiclePublisher.publish).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event: 'vehicle.updated',
+        vehicleId: 'vehicle-id',
+        userId: 'user-id',
+      }),
+    );
+    expect(result.data.licensePlate).toBe('XYZ9A88');
   });
 
   it('should throw NotFoundException when vehicle does not exist', async () => {

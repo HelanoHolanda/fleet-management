@@ -23,7 +23,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
   async validate(payload: JwtPayload) {
     const user = await this.usersRepository.findById(payload.sub);
-    if (!user) throw new UnauthorizedException();
+    if (!user) throw new UnauthorizedException('token inválido ou expirado');
     return user;
   }
 }

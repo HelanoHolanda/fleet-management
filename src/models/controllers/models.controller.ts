@@ -34,12 +34,19 @@ export class ModelsController {
   async create(
     @Body() dto: CreateModelDto,
     @CurrentUser() currentUser: User,
-  ): Promise<Model> {
+  ): Promise<{
+    message: string;
+    data: Partial<Model>;
+  }> {
     return this.createModelUseCase.execute(dto, currentUser.id);
   }
 
   @Get()
-  async findAll(): Promise<Model[]> {
+  async findAll(): Promise<{
+    items: Partial<Model>[];
+    total: number;
+    page: number;
+  }> {
     return this.findModelsUseCase.execute();
   }
 
@@ -47,12 +54,16 @@ export class ModelsController {
   async update(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
     @Body() dto: UpdateModelDto,
-  ): Promise<Model> {
+  ): Promise<{
+    message: string;
+    data: Partial<Model>;
+  }> {
     return this.updateModelUseCase.execute(id, dto);
   }
 
   @Delete(':id')
-  async delete(@Param('id') id: string): Promise<void> {
-    await this.deleteModelUseCase.execute(id);
+  async delete(@Param('id') id: string): Promise<{ message: string }> {
+    const result = await this.deleteModelUseCase.execute(id);
+    return result;
   }
 }

@@ -4,6 +4,12 @@ import type { Cache } from 'cache-manager';
 import { VehiclesRepository } from '../repositories/vehicles.repository';
 import { Vehicle } from '../entities/vehicle.entity';
 
+type FindAllVehiclesResponse = {
+  items: Partial<Vehicle>[];
+  total: number;
+  page: number;
+};
+
 @Injectable()
 export class FindAllVehiclesUseCase {
   constructor(
@@ -12,13 +18,17 @@ export class FindAllVehiclesUseCase {
     private readonly cacheManager: Cache,
   ) {}
 
-  async execute(): Promise<Vehicle[]> {
-    const cacheKey = 'vehicles:all';
+  async execute(page = 1, limit = 10): Promise<FindAllVehiclesResponse> {
+    const cacheKey = `vehicles:all:page:${page}:limit:${limit}`;
 
-    const cached = await this.cacheManager.get<Vehicle[]>(cacheKey);
-    if (cached) return cached;
+    const cached =
+      await this.cacheManager.get<FindAllVehiclesResponse>(cacheKey);
 
-    const vehicles = await this.vehiclesRepository.findAll();
+    if (cached) {
+      return cached;
+    }
+
+    const vehicles = await this.vehiclesRepository.findAll(page, limit);
 
     await this.cacheManager.set(cacheKey, vehicles);
 

@@ -5,6 +5,7 @@ import { ModelsRepository } from '../../models/repositories/models.repository';
 import { Vehicle } from '../entities/vehicle.entity';
 import { VehiclesRepository } from '../repositories/vehicles.repository';
 import { CreateVehicleUseCase } from './create-vehicles.use-case';
+import { VehiclePublisher } from '../../messaging/publishers/vehicles.publiser';
 
 describe('CreateVehicleUseCase', () => {
   let useCase: CreateVehicleUseCase;
@@ -16,6 +17,7 @@ describe('CreateVehicleUseCase', () => {
   >;
   let modelsRepository: jest.Mocked<Pick<ModelsRepository, 'findById'>>;
   let cacheManager: jest.Mocked<Pick<Cache, 'del'>>;
+  let vehiclePublisher: jest.Mocked<Pick<VehiclePublisher, 'publish'>>;
 
   const model: Model = {
     id: 'model-id',
@@ -51,11 +53,15 @@ describe('CreateVehicleUseCase', () => {
     cacheManager = {
       del: jest.fn(),
     };
+    vehiclePublisher = {
+      publish: jest.fn(),
+    };
 
     useCase = new CreateVehicleUseCase(
       vehiclesRepository as unknown as VehiclesRepository,
       modelsRepository as unknown as ModelsRepository,
       cacheManager as unknown as Cache,
+      vehiclePublisher as unknown as VehiclePublisher,
     );
   });
 
@@ -87,7 +93,27 @@ describe('CreateVehicleUseCase', () => {
       createdBy: 'user-id',
     });
     expect(cacheManager.del).toHaveBeenCalledWith('vehicles:all');
-    expect(result).toEqual(vehicle);
+    expect(vehiclePublisher.publish).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event: 'vehicle.created',
+        vehicleId: vehicle.id,
+        userId: 'user-id',
+        data: vehicle,
+      }),
+    );
+    expect(result).toEqual({
+      message: 'Veículo criado com sucesso',
+      data: {
+        licensePlate: vehicle.licensePlate,
+        chassis: vehicle.chassis,
+        renavam: vehicle.renavam,
+        year: vehicle.year,
+        model: {
+          id: model.id,
+          name: model.name,
+        },
+      },
+    });
   });
 
   it('should throw NotFoundException when model does not exist', async () => {

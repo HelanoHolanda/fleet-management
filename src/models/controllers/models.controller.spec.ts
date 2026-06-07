@@ -35,7 +35,11 @@ describe('ModelsController', () => {
   });
 
   it('should create a model using current user id', async () => {
-    createModelUseCase.execute.mockResolvedValue(model);
+    const response = {
+      message: 'Modelo criado com sucesso',
+      data: model,
+    };
+    createModelUseCase.execute.mockResolvedValue(response);
 
     const result = await controller.create({ name: 'Corolla' }, {
       id: 'user-id',
@@ -45,30 +49,42 @@ describe('ModelsController', () => {
       { name: 'Corolla' },
       'user-id',
     );
-    expect(result).toEqual(model);
+    expect(result).toEqual(response);
   });
 
   it('should list models', async () => {
-    findModelsUseCase.execute.mockResolvedValue([model]);
+    const response = {
+      items: [model],
+      total: 1,
+      page: 1,
+    };
+    findModelsUseCase.execute.mockResolvedValue(response);
 
-    await expect(controller.findAll()).resolves.toEqual([model]);
+    await expect(controller.findAll()).resolves.toEqual(response);
   });
 
   it('should update a model', async () => {
-    updateModelUseCase.execute.mockResolvedValue(model);
+    const response = {
+      message: 'Modelo atualizado com sucesso.',
+      data: model,
+    };
+    updateModelUseCase.execute.mockResolvedValue(response);
 
     const result = await controller.update('model-id', { name: 'Corolla' });
 
     expect(updateModelUseCase.execute).toHaveBeenCalledWith('model-id', {
       name: 'Corolla',
     });
-    expect(result).toEqual(model);
+    expect(result).toEqual(response);
   });
 
   it('should delete a model', async () => {
-    deleteModelUseCase.execute.mockResolvedValue(undefined);
+    const response = {
+      message: 'Modelo removido com sucesso.',
+    };
+    deleteModelUseCase.execute.mockResolvedValue(response);
 
-    await expect(controller.delete('model-id')).resolves.toBeUndefined();
+    await expect(controller.delete('model-id')).resolves.toEqual(response);
     expect(deleteModelUseCase.execute).toHaveBeenCalledWith('model-id');
   });
 });

@@ -6,12 +6,13 @@ import { UpdateModelUseCase } from './update-model.use-case';
 describe('UpdateModelUseCase', () => {
   let useCase: UpdateModelUseCase;
   let modelsRepository: jest.Mocked<
-    Pick<ModelsRepository, 'findById' | 'update'>
+    Pick<ModelsRepository, 'findById' | 'verifyNameExists' | 'update'>
   >;
 
   beforeEach(() => {
     modelsRepository = {
       findById: jest.fn(),
+      verifyNameExists: jest.fn(),
       update: jest.fn(),
     };
 
@@ -20,7 +21,7 @@ describe('UpdateModelUseCase', () => {
     );
   });
 
-  it('should update a model', async () => {
+  it('should update a model and return response pattern', async () => {
     const model: Model = {
       id: 'model-id',
       name: 'Hilux',
@@ -29,6 +30,7 @@ describe('UpdateModelUseCase', () => {
       createdBy: 'user-id',
     };
     modelsRepository.findById.mockResolvedValue(model);
+    modelsRepository.verifyNameExists.mockResolvedValue(false);
     modelsRepository.update.mockResolvedValue(model);
 
     const result = await useCase.execute('model-id', { name: 'Hilux' });
@@ -36,7 +38,14 @@ describe('UpdateModelUseCase', () => {
     expect(modelsRepository.update).toHaveBeenCalledWith('model-id', {
       name: 'Hilux',
     });
-    expect(result).toEqual(model);
+    expect(result).toEqual({
+      message: 'Modelo atualizado com sucesso.',
+      data: {
+        id: model.id,
+        name: model.name,
+        createdAt: model.createdAt,
+      },
+    });
   });
 
   it('should throw NotFoundException when model does not exist', async () => {

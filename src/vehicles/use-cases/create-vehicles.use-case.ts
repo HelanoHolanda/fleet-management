@@ -10,7 +10,17 @@ import { CreateVehicleDto } from '../dto/create-vehicle.dto';
 import { VehiclesRepository } from '../repositories/vehicles.repository';
 import { ModelsRepository } from '../../models/repositories/models.repository';
 import { Vehicle } from '../entities/vehicle.entity';
-import { VehiclePublisher } from 'src/messaging/publishers/vehicles.publiser';
+import { VehiclePublisher } from '../../messaging/publishers/vehicles.publiser';
+
+type CreateVehicleResponse = {
+  message: string;
+  data: Partial<Omit<Vehicle, 'model'>> & {
+    model: {
+      id: string;
+      name: string;
+    };
+  };
+};
 
 @Injectable()
 export class CreateVehicleUseCase {
@@ -22,7 +32,10 @@ export class CreateVehicleUseCase {
     private readonly vehiclePublisher: VehiclePublisher,
   ) {}
 
-  async execute(dto: CreateVehicleDto, createdBy: string): Promise<Vehicle> {
+  async execute(
+    dto: CreateVehicleDto,
+    createdBy: string,
+  ): Promise<CreateVehicleResponse> {
     const model = await this.modelsRepository.findById(dto.modelId);
     if (!model) throw new NotFoundException('Modelo não encontrado');
 
@@ -56,6 +69,18 @@ export class CreateVehicleUseCase {
       data: vehicle,
     });
 
-    return vehicle;
+    return {
+      message: 'Veículo criado com sucesso',
+      data: {
+        licensePlate: vehicle.licensePlate,
+        chassis: vehicle.chassis,
+        renavam: vehicle.renavam,
+        year: vehicle.year,
+        model: {
+          id: model.id,
+          name: model.name,
+        },
+      },
+    };
   }
 }

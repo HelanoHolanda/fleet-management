@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
 import { AuditService } from '../audit.service';
-import type { VehicleEvent } from 'src/messaging/publishers/vehicles.publiser';
+import type { VehicleEvent } from '../../messaging/publishers/vehicles.publiser';
 
 @Injectable()
 export class VehicleAuditConsumer {

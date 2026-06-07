@@ -16,8 +16,15 @@ export class VehiclesRepository {
     return this.findById(saved.id) as Promise<Vehicle>;
   }
 
-  async findAll(): Promise<Vehicle[]> {
-    return this.repository.find({
+  async findAll(
+    page = 1,
+    limit = 10,
+  ): Promise<{
+    items: Partial<Vehicle>[];
+    total: number;
+    page: number;
+  }> {
+    const [items, total] = await this.repository.findAndCount({
       select: {
         id: true,
         licensePlate: true,
@@ -25,30 +32,41 @@ export class VehiclesRepository {
         renavam: true,
         year: true,
         model: {
+          id: true,
           name: true,
         },
       },
-      relations: ['model'],
+      relations: {
+        model: true,
+      },
+      skip: (page - 1) * limit,
+      take: limit,
     });
+
+    return {
+      items,
+      total,
+      page,
+    };
   }
 
   async findById(id: string): Promise<Vehicle | null> {
     return this.repository.findOne({
-      where: { id },
+      where: { id: id },
       relations: ['model'],
     });
   }
 
   async findByLicensePlate(licensePlate: string): Promise<Vehicle | null> {
-    return this.repository.findOne({ where: { licensePlate } });
+    return this.repository.findOne({ where: { licensePlate: licensePlate } });
   }
 
   async findByChassis(chassis: string): Promise<Vehicle | null> {
-    return this.repository.findOne({ where: { chassis } });
+    return this.repository.findOne({ where: { chassis: chassis } });
   }
 
   async findByRenavam(renavam: string): Promise<Vehicle | null> {
-    return this.repository.findOne({ where: { renavam } });
+    return this.repository.findOne({ where: { renavam: renavam } });
   }
 
   async update(id: string, data: Partial<Vehicle>): Promise<Vehicle> {

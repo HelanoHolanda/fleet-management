@@ -1,5 +1,4 @@
 import { ConflictException, NotFoundException } from '@nestjs/common';
-import { QueryFailedError } from 'typeorm';
 import { Brand } from '../entities/brand.entity';
 import { BrandsRepository } from '../repositories/brands.repository';
 import { UpdateBrandUseCase } from './update-brand.use-case';
@@ -7,7 +6,7 @@ import { UpdateBrandUseCase } from './update-brand.use-case';
 describe('UpdateBrandUseCase', () => {
   let useCase: UpdateBrandUseCase;
   let brandsRepository: jest.Mocked<
-    Pick<BrandsRepository, 'findById' | 'update'>
+    Pick<BrandsRepository, 'findById' | 'verifyNameExists' | 'update'>
   >;
 
   const brandId = '11111111-1111-4111-8111-111111111111';
@@ -23,6 +22,7 @@ describe('UpdateBrandUseCase', () => {
   beforeEach(() => {
     brandsRepository = {
       findById: jest.fn(),
+      verifyNameExists: jest.fn(),
       update: jest.fn(),
     };
 
@@ -31,18 +31,27 @@ describe('UpdateBrandUseCase', () => {
     );
   });
 
-  it('should update a brand when it exists', async () => {
+  it('should update a brand when it exists and return response pattern', async () => {
     const updatedBrand = { ...brand, name: 'Honda' };
     brandsRepository.findById.mockResolvedValue(brand);
+    brandsRepository.verifyNameExists.mockResolvedValue(false);
     brandsRepository.update.mockResolvedValue(updatedBrand);
 
     const result = await useCase.execute(brandId, { name: 'Honda' });
 
     expect(brandsRepository.findById).toHaveBeenCalledWith(brandId);
+    expect(brandsRepository.verifyNameExists).toHaveBeenCalledWith('Honda');
     expect(brandsRepository.update).toHaveBeenCalledWith(brandId, {
       name: 'Honda',
     });
-    expect(result).toEqual(updatedBrand);
+    expect(result).toEqual({
+      message: 'Marca atualizada com sucesso.',
+      data: {
+        id: updatedBrand.id,
+        name: updatedBrand.name,
+        createdAt: updatedBrand.createdAt,
+      },
+    });
   });
 
   it('should throw NotFoundException when brand does not exist', async () => {
@@ -54,24 +63,13 @@ describe('UpdateBrandUseCase', () => {
     expect(brandsRepository.update).not.toHaveBeenCalled();
   });
 
-  it('should throw NotFoundException when id is not a valid uuid', async () => {
-    await expect(
-      useCase.execute('id-invalido', { name: 'Honda' }),
-    ).rejects.toBeInstanceOf(NotFoundException);
-    expect(brandsRepository.findById).not.toHaveBeenCalled();
-    expect(brandsRepository.update).not.toHaveBeenCalled();
-  });
-
   it('should throw ConflictException when brand name already exists', async () => {
-    const error = Object.assign(
-      new QueryFailedError('', [], { number: 2601 } as unknown as Error),
-      { number: 2601 },
-    );
     brandsRepository.findById.mockResolvedValue(brand);
-    brandsRepository.update.mockRejectedValue(error);
+    brandsRepository.verifyNameExists.mockResolvedValue(true);
 
     await expect(
       useCase.execute(brandId, { name: 'Honda' }),
     ).rejects.toBeInstanceOf(ConflictException);
+    expect(brandsRepository.update).not.toHaveBeenCalled();
   });
 });

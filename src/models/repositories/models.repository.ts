@@ -2,12 +2,15 @@ import { Repository } from 'typeorm';
 import { Model } from '../entities/model.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Injectable } from '@nestjs/common';
+import { Vehicle } from '../../vehicles/entities/vehicle.entity';
 
 @Injectable()
 export class ModelsRepository {
   constructor(
     @InjectRepository(Model)
     private readonly repository: Repository<Model>,
+    @InjectRepository(Vehicle)
+    private readonly vehicleRepository: Repository<Vehicle>,
   ) {}
 
   async create(model: Partial<Model>): Promise<Model> {
@@ -16,18 +19,34 @@ export class ModelsRepository {
     return this.repository.save(newModel);
   }
 
-  async findAll(): Promise<Model[]> {
-    // metodo para encontrar todos os modelos
-    const list = this.repository.find({
+  async verifyNameExists(name: string): Promise<boolean> {
+    const count = await this.repository.count({ where: { name } });
+    return count > 0;
+  }
+
+  async findAll(
+    page = 1,
+    limit = 10,
+  ): Promise<{
+    items: Partial<Model>[];
+    total: number;
+    page: number;
+  }> {
+    const [items, total] = await this.repository.findAndCount({
       select: {
         id: true,
         name: true,
       },
+      skip: (page - 1) * limit,
+      take: limit,
     });
 
-    return list;
+    return {
+      items,
+      total,
+      page,
+    };
   }
-
   async update(id: string, updateData: Partial<Model>): Promise<Model> {
     // metodo para atualizar um modelo existente
     const model = await this.repository.findOne({ where: { id } });
@@ -53,9 +72,7 @@ export class ModelsRepository {
 
   async findById(id: string): Promise<Model | null> {
     return this.repository.findOne({
-      where: {
-        id,
-      },
+      where: { id: id },
     });
   }
 
@@ -74,10 +91,9 @@ export class ModelsRepository {
   }
 
   async hasVehicles(modelId: string): Promise<boolean> {
-    const count = await this.repository.count({
-      where: { id: modelId },
-      relations: ['vehicles'],
+    const verify = await this.vehicleRepository.find({
+      where: { modelId: modelId },
     });
-    return count > 0;
+    return verify.length > 0;
   }
 }

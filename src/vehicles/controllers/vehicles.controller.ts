@@ -7,6 +7,7 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
@@ -18,7 +19,6 @@ import { CreateVehicleUseCase } from '../use-cases/create-vehicles.use-case';
 import { DeleteVehicleUseCase } from '../use-cases/delete-vehicle.use-case';
 import { FindAllVehiclesUseCase } from '../use-cases/find-all-vehicles.use-case';
 import { UpdateVehicleUseCase } from '../use-cases/update-vehicle.use-case';
-import { VehicleResponseDto } from '../dto/vehicle-response.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('vehicles')
@@ -31,44 +31,21 @@ export class VehiclesController {
   ) {}
 
   @Post()
-  async create(
-    @Body() dto: CreateVehicleDto,
-    @CurrentUser() user: User,
-  ): Promise<VehicleResponseDto> {
-    const vehicle = await this.createVehicleUseCase.execute(dto, user.id);
-
-    return {
-      licensePlate: vehicle.licensePlate,
-      chassis: vehicle.chassis,
-      renavam: vehicle.renavam,
-      year: vehicle.year,
-      model: {
-        name: vehicle.model.name,
-      },
-    };
+  async create(@Body() dto: CreateVehicleDto, @CurrentUser() user: User) {
+    return await this.createVehicleUseCase.execute(dto, user.id);
   }
 
   @Get()
-  async findAll() {
-    return this.findAllVehiclesUseCase.execute();
+  async findAll(@Query('page') page = '1', @Query('limit') limit = '10') {
+    return this.findAllVehiclesUseCase.execute(Number(page), Number(limit));
   }
 
   @Patch(':id')
   async update(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
     @Body() dto: UpdateVehicleDto,
-  ): Promise<VehicleResponseDto> {
-    const vehicle = await this.updateVehicleUseCase.execute(id, dto);
-
-    return {
-      licensePlate: vehicle.licensePlate,
-      chassis: vehicle.chassis,
-      renavam: vehicle.renavam,
-      year: vehicle.year,
-      model: {
-        name: vehicle.model.name,
-      },
-    };
+  ) {
+    return await this.updateVehicleUseCase.execute(id, dto);
   }
 
   @Delete(':id')

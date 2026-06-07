@@ -15,20 +15,45 @@ export class BrandsRepository {
     return this.repository.save(newBrand);
   }
 
-  async findAll(): Promise<Brand[]> {
-    return this.repository.find({
-      select: { id: true, name: true, models: { id: true, name: true } },
-      relations: ['models'],
-      order: {
-        name: 'ASC',
+  async verifyNameExists(name: string): Promise<boolean> {
+    const count = await this.repository.count({ where: { name } });
+    return count > 0;
+  }
+
+  async findAll(
+    page = 1,
+    limit = 10,
+  ): Promise<{
+    items: Partial<Brand>[];
+    total: number;
+    page: number;
+  }> {
+    const [items, total] = await this.repository.findAndCount({
+      select: {
+        id: true,
+        name: true,
+        models: {
+          id: true,
+          name: true,
+        },
       },
+      relations: {
+        models: true,
+      },
+      skip: (page - 1) * limit,
+      take: limit,
     });
+
+    return {
+      items,
+      total,
+      page,
+    };
   }
 
   async findById(id: string): Promise<Brand | null> {
     return this.repository.findOne({
-      where: { id },
-      relations: ['models'],
+      where: { id: id },
     });
   }
 
@@ -37,9 +62,14 @@ export class BrandsRepository {
   }
 
   async update(id: string, data: Partial<Brand>): Promise<Brand> {
-    const brand = await this.findById(id);
-    const updated = this.repository.merge(brand!, data);
-    return this.repository.save(updated);
+    const brand = await this.repository.findOne({ where: { id } });
+    if (!brand) {
+      throw new Error('Brand not found');
+    }
+
+    Object.assign(brand, data);
+    await this.repository.save(brand);
+    return this.findById(id) as Promise<Brand>;
   }
 
   async delete(id: string): Promise<void> {

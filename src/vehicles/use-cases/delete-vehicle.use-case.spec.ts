@@ -4,6 +4,7 @@ import { Model } from '../../models/entities/model.entity';
 import { Vehicle } from '../entities/vehicle.entity';
 import { VehiclesRepository } from '../repositories/vehicles.repository';
 import { DeleteVehicleUseCase } from './delete-vehicle.use-case';
+import { VehiclePublisher } from '../../messaging/publishers/vehicles.publiser';
 
 describe('DeleteVehicleUseCase', () => {
   let useCase: DeleteVehicleUseCase;
@@ -11,6 +12,7 @@ describe('DeleteVehicleUseCase', () => {
     Pick<VehiclesRepository, 'findById' | 'delete'>
   >;
   let cacheManager: jest.Mocked<Pick<Cache, 'del'>>;
+  let vehiclePublisher: jest.Mocked<Pick<VehiclePublisher, 'publish'>>;
 
   const model: Model = {
     id: 'model-id',
@@ -41,10 +43,14 @@ describe('DeleteVehicleUseCase', () => {
     cacheManager = {
       del: jest.fn(),
     };
+    vehiclePublisher = {
+      publish: jest.fn(),
+    };
 
     useCase = new DeleteVehicleUseCase(
       vehiclesRepository as unknown as VehiclesRepository,
       cacheManager as unknown as Cache,
+      vehiclePublisher as unknown as VehiclePublisher,
     );
   });
 
@@ -52,9 +58,18 @@ describe('DeleteVehicleUseCase', () => {
     vehiclesRepository.findById.mockResolvedValue(vehicle);
     vehiclesRepository.delete.mockResolvedValue(undefined);
 
-    await expect(useCase.execute('vehicle-id')).resolves.toBeUndefined();
+    await expect(useCase.execute('vehicle-id')).resolves.toEqual({
+      message: 'Veículo removido com sucesso.',
+    });
     expect(vehiclesRepository.delete).toHaveBeenCalledWith('vehicle-id');
     expect(cacheManager.del).toHaveBeenCalledWith('vehicles:all');
+    expect(vehiclePublisher.publish).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event: 'vehicle.deleted',
+        vehicleId: 'vehicle-id',
+        userId: 'user-id',
+      }),
+    );
   });
 
   it('should throw NotFoundException when vehicle does not exist', async () => {

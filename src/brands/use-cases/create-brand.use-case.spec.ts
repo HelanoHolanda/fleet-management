@@ -1,12 +1,13 @@
 import { ConflictException } from '@nestjs/common';
-import { QueryFailedError } from 'typeorm';
 import { Brand } from '../entities/brand.entity';
 import { BrandsRepository } from '../repositories/brands.repository';
 import { CreateBrandUseCase } from './create-brand.use-case';
 
 describe('CreateBrandUseCase', () => {
   let useCase: CreateBrandUseCase;
-  let brandsRepository: jest.Mocked<Pick<BrandsRepository, 'create'>>;
+  let brandsRepository: jest.Mocked<
+    Pick<BrandsRepository, 'verifyNameExists' | 'create'>
+  >;
 
   const userId = '33333333-3333-4333-8333-333333333333';
 
@@ -20,6 +21,7 @@ describe('CreateBrandUseCase', () => {
 
   beforeEach(() => {
     brandsRepository = {
+      verifyNameExists: jest.fn(),
       create: jest.fn(),
     };
 
@@ -28,36 +30,33 @@ describe('CreateBrandUseCase', () => {
     );
   });
 
-  it('should create a brand with createdBy', async () => {
+  it('should create a brand with createdBy and return response pattern', async () => {
+    brandsRepository.verifyNameExists.mockResolvedValue(false);
     brandsRepository.create.mockResolvedValue(brand);
 
     const result = await useCase.execute({ name: 'Toyota' }, userId);
 
+    expect(brandsRepository.verifyNameExists).toHaveBeenCalledWith('Toyota');
     expect(brandsRepository.create).toHaveBeenCalledWith({
       name: 'Toyota',
       createdBy: userId,
     });
-    expect(result).toEqual(brand);
+    expect(result).toEqual({
+      message: 'Marca criada com sucesso.',
+      data: {
+        id: brand.id,
+        name: brand.name,
+        createdAt: brand.createdAt,
+      },
+    });
   });
 
   it('should throw ConflictException when brand name already exists', async () => {
-    const error = Object.assign(
-      new QueryFailedError('', [], { number: 2627 } as unknown as Error),
-      { number: 2627 },
-    );
-    brandsRepository.create.mockRejectedValue(error);
+    brandsRepository.verifyNameExists.mockResolvedValue(true);
 
     await expect(
       useCase.execute({ name: 'Toyota' }, userId),
     ).rejects.toBeInstanceOf(ConflictException);
-  });
-
-  it('should rethrow unknown errors', async () => {
-    const error = new Error('database unavailable');
-    brandsRepository.create.mockRejectedValue(error);
-
-    await expect(useCase.execute({ name: 'Toyota' }, userId)).rejects.toThrow(
-      error,
-    );
+    expect(brandsRepository.create).not.toHaveBeenCalled();
   });
 });

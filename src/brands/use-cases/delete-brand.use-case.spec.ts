@@ -1,4 +1,4 @@
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { NotFoundException } from '@nestjs/common';
 import { Brand } from '../entities/brand.entity';
 import { BrandsRepository } from '../repositories/brands.repository';
 import { DeleteBrandUseCase } from './delete-brand.use-case';
@@ -30,11 +30,13 @@ describe('DeleteBrandUseCase', () => {
     );
   });
 
-  it('should delete a brand when it exists', async () => {
+  it('should delete a brand when it exists and return response pattern', async () => {
     brandsRepository.findById.mockResolvedValue(brand);
     brandsRepository.delete.mockResolvedValue(undefined);
 
-    await expect(useCase.execute(brandId)).resolves.toBeUndefined();
+    await expect(useCase.execute(brandId)).resolves.toEqual({
+      message: 'Marca removida com sucesso.',
+    });
     expect(brandsRepository.findById).toHaveBeenCalledWith(brandId);
     expect(brandsRepository.delete).toHaveBeenCalledWith(brandId);
   });
@@ -45,14 +47,6 @@ describe('DeleteBrandUseCase', () => {
     await expect(useCase.execute(brandId)).rejects.toBeInstanceOf(
       NotFoundException,
     );
-    expect(brandsRepository.delete).not.toHaveBeenCalled();
-  });
-
-  it('should throw BadRequestException when id is not a valid uuid', async () => {
-    await expect(useCase.execute('id-invalido')).rejects.toBeInstanceOf(
-      BadRequestException,
-    );
-    expect(brandsRepository.findById).not.toHaveBeenCalled();
     expect(brandsRepository.delete).not.toHaveBeenCalled();
   });
 });

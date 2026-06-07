@@ -47,8 +47,8 @@ describe('AssociateModelToBrandUseCase', () => {
     );
   });
 
-  it('should associate a model to a brand', async () => {
-    const associatedModel = { ...model, brandId };
+  it('should associate a model to a brand and return response pattern', async () => {
+    const associatedModel = { ...model, brandId, brand };
     brandsRepository.findById.mockResolvedValue(brand);
     modelsRepository.findById.mockResolvedValue(model);
     modelsRepository.assignBrand.mockResolvedValue(associatedModel);
@@ -58,7 +58,18 @@ describe('AssociateModelToBrandUseCase', () => {
     expect(brandsRepository.findById).toHaveBeenCalledWith(brandId);
     expect(modelsRepository.findById).toHaveBeenCalledWith(modelId);
     expect(modelsRepository.assignBrand).toHaveBeenCalledWith(modelId, brandId);
-    expect(result).toEqual(associatedModel);
+    expect(result).toEqual({
+      message: 'Modelo associado a marca com sucesso.',
+      data: {
+        id: associatedModel.id,
+        name: associatedModel.name,
+        brandId,
+        brand: {
+          id: brand.id,
+          name: brand.name,
+        },
+      },
+    });
   });
 
   it('should throw NotFoundException when brand does not exist', async () => {
